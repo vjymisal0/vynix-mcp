@@ -23,6 +23,11 @@ export function loadConfig(): VynixConfig {
  * email and a password are required for the login + refresh flow.
  */
 export function assertConfigured(config: VynixConfig): void {
+  const mode = (process.env.VYNIX_MCP_MODE || 'stdio').toLowerCase();
+  if (mode === 'http' || mode === 'streamable-http') {
+    return;
+  }
+
   if (config.token) {
     return;
   }

@@ -11,5 +11,5 @@ Vynix is a website annotation and developer-context tool. Drop a lightweight wid
 ## Next steps
 
 - Read the [Vynix documentation](https://vynix.in/docs).
-- Browse the other Vynix open-source projects at [https://github.com/vynix-in](https://github.com/vynix-in).
+- Browse the other Vynix open-source projects at [https://github.com/UseVynix](https://github.com/UseVynix).
 - Try Vynix at [https://vynix.in](https://vynix.in).

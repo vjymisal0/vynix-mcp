@@ -1,0 +1,44 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "in.vynix/vynix-mcp",
+  "title": "Vynix",
+  "description": "Give AI coding agents access to your Vynix visual feedback, bug reports, and AI diagnosis.",
+  "websiteUrl": "https://www.vynix.in/mcp",
+  "repository": {
+    "url": "https://github.com/UseVynix/vynix-mcp",
+    "source": "github"
+  },
+  "version": "0.1.4",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@usevynix/mcp-server",
+      "version": "0.1.4",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "VYNIX_API_URL",
+          "description": "Vynix API base URL. Defaults to https://www.vynix.in.",
+          "isRequired": false,
+          "default": "https://www.vynix.in"
+        },
+        {
+          "name": "VYNIX_API_TOKEN",
+          "description": "Personal access token generated at https://www.vynix.in/mcp.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.vynix.in/mcp"
+    }
+  ]
+}

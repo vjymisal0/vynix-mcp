@@ -84,7 +84,7 @@ Authenticate with either a token (recommended) or email and password:
 For contributors who want to run the server from a local checkout:
 
 ```bash
-git clone https://github.com/vynix-in/vynix-mcp.git
+git clone https://github.com/UseVynix/vynix-mcp.git
 cd vynix-mcp
 npm install
 npm run build
