@@ -198,6 +198,7 @@ Generate a token from: <https://www.vynix.in/mcp>
 - Deployment guide: [docs/deployment.md](docs/deployment.md)
 - Agent discovery guide: [docs/agent-discovery.md](docs/agent-discovery.md)
 - LLM index file: [llms.txt](llms.txt)
+- Directory listing tracker: [docs/listings-status.md](docs/listings-status.md)
 
 ## Examples
 
