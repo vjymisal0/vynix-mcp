@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a defect in the MCP server behavior.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+      placeholder: One sentence summary
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact sequence to reproduce the bug.
+      placeholder: |
+        1. Configure MCP client...
+        2. Call tool...
+        3. Observe error...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Server version
+      placeholder: 1.0.0
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: VS Code / Cursor / Claude Desktop / ChatGPT
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      render: shell

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- No unreleased changes yet.
+
+## 1.0.0 - 2026-08-06
+
 - Added MCP resources for server metadata, tool/prompt catalogs, workflow starters, project summaries, and annotation briefs.
 - Expanded prompt catalog with workflow-oriented prompts for QA, release, product, accessibility, and engineering planning.
 - Rewrote README with full install matrix (NPX, npm, Docker, Claude Desktop, Cursor, VS Code, Windsurf, ChatGPT).

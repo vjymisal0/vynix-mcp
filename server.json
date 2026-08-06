@@ -8,13 +8,13 @@
     "url": "https://github.com/UseVynix/vynix-mcp",
     "source": "github"
   },
-  "version": "0.1.4",
+  "version": "1.0.0",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@usevynix/mcp-server",
-      "version": "0.1.4",
+      "version": "1.0.0",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

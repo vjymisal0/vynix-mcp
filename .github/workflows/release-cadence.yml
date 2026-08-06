@@ -1,0 +1,62 @@
+name: Release Cadence Reminder
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-biweekly-release-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open reminder on odd ISO weeks
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const now = new Date();
+            const firstJan = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+            const dayMs = 24 * 60 * 60 * 1000;
+            const dayOfYear = Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - Date.UTC(now.getUTCFullYear(), 0, 0)) / dayMs);
+            const week = Math.ceil((dayOfYear - ((firstJan.getUTCDay() + 6) % 7)) / 7);
+            if (week % 2 === 0) {
+              core.info(`Skipping even week ${week}.`);
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const title = `release: biweekly patch checkpoint (${now.toISOString().slice(0, 10)})`;
+
+            const existing = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              labels: 'release',
+              per_page: 100,
+            });
+
+            if (existing.data.some(i => i.title.startsWith('release: biweekly patch checkpoint'))) {
+              core.info('Open release checkpoint issue already exists.');
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              labels: ['release', 'maintenance'],
+              body: [
+                'Biweekly patch release checkpoint.',
+                '',
+                'Checklist:',
+                '- [ ] Review merged changes since last release',
+                '- [ ] Run npm run check',
+                '- [ ] Update CHANGELOG.md',
+                '- [ ] Tag and publish patch release',
+                '- [ ] Post release notes',
+              ].join('\n'),
+            });

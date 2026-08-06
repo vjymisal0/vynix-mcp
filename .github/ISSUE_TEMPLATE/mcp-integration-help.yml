@@ -1,0 +1,34 @@
+name: MCP integration help
+description: Ask for help integrating this server with a specific MCP client.
+title: "help: integration with "
+labels:
+  - question
+  - integration
+body:
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: VS Code / Cursor / Claude Desktop / ChatGPT / Gemini
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Current configuration
+      description: Paste your MCP server configuration.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is not working
+      description: Describe the failure and expected outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Error output
+      render: shell

@@ -196,6 +196,8 @@ Generate a token from: <https://www.vynix.in/mcp>
 - Resource reference: [docs/resources.md](docs/resources.md)
 - Skill/workflow reference: [docs/skills.md](docs/skills.md)
 - Deployment guide: [docs/deployment.md](docs/deployment.md)
+- Agent discovery guide: [docs/agent-discovery.md](docs/agent-discovery.md)
+- LLM index file: [llms.txt](llms.txt)
 
 ## Examples
 

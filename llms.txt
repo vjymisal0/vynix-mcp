@@ -1,0 +1,29 @@
+# Vynix MCP Server
+
+> Model Context Protocol server that gives AI agents direct access to Vynix feedback, annotations, screenshots, diagnostics, and issue workflows.
+
+Important notes:
+
+- Primary machine-readable registry metadata is in server.json.
+- Claim metadata for Glama is in glama.json.
+- Smithery metadata is in smithery.yaml.
+- Install and usage instructions are in README.md.
+
+## Core metadata
+
+- [MCP server metadata](./server.json): Canonical MCP registry metadata, package and transport information.
+- [Glama ownership metadata](./glama.json): Maintainer identities for Glama claiming.
+- [Smithery metadata](./smithery.yaml): Smithery project config.
+
+## Documentation
+
+- [README](./README.md): Installation matrix, configuration, tools, prompts, troubleshooting.
+- [Tool reference](./docs/tools.md): Read and write tools catalog.
+- [Prompt reference](./docs/prompts.md): Workflow prompts catalog.
+- [Resource reference](./docs/resources.md): MCP resources exposed by the server.
+- [Deployment guide](./docs/deployment.md): Stdio and streamable-http deployment guidance.
+
+## Optional
+
+- [Prompt examples](./examples/prompts.md): 100+ realistic prompts.
+- [Workflow examples](./examples/workflows/open-feedback.md): End-to-end interaction examples.
