@@ -9,8 +9,6 @@
 
 Model Context Protocol server for Vynix. It gives coding agents direct access to visual feedback, bug reports, screenshots, diagnostics, comments, and issue workflows so agents can reason from real context instead of guessing.
 
-Smithery listing: https://smithery.ai/servers/team-j5ir/vynix
-
 ## Why Vynix
 
 - Feedback with evidence: page metadata, target element, screenshot, console/network context.
@@ -112,8 +110,6 @@ Use `claude_desktop_config.json`:
 ```
 
 Diagnostics are written to stderr; stdout is reserved for the protocol stream.
-
-[![MCP Badge](https://lobehub.com/badge/mcp/vynix-in-vynix-mcp)](https://lobehub.com/mcp/vynix-in-vynix-mcp)
 
 ### Cursor
 
