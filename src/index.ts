@@ -2,6 +2,7 @@
 import { createRequire } from 'node:module';
 import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
@@ -213,6 +214,28 @@ function jsonOut(value: unknown, structuredContent: Record<string, unknown>): To
     content: [{ type: 'text', text: JSON.stringify(value, null, 2) }],
     structuredContent,
   };
+}
+
+function jsonResource(uri: string, value: unknown): { contents: Array<{ uri: string; mimeType: string; text: string }> } {
+  return {
+    contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(value, null, 2) }],
+  };
+}
+
+function textResource(uri: string, value: string): { contents: Array<{ uri: string; mimeType: string; text: string }> } {
+  return {
+    contents: [{ uri, mimeType: 'text/markdown', text: value }],
+  };
+}
+
+function templateVarAsString(value: string | string[] | undefined, name: string): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value) && value.length > 0) {
+    return value[0];
+  }
+  throw new Error(`Missing resource template variable: ${name}`);
 }
 
 // --- Output schema shapes (permissive; documented field names) --------------
@@ -428,6 +451,214 @@ function createServer(client: VynixClient): McpServer {
         'diagnose_annotation. Use get_metrics / get_activity for project-wide overviews.\n' +
         '\n' +
         'Never fabricate annotation data. If no token or project is configured, say so.',
+    },
+  );
+
+  // --- Resources ------------------------------------------------------------
+
+  server.registerResource(
+    'server_metadata',
+    'vynix://meta/server',
+    {
+      title: 'Server metadata',
+      description: 'Protocol-ready metadata describing this MCP server, auth, and transport modes.',
+      mimeType: 'application/json',
+    },
+    async (uri) =>
+      jsonResource(uri.toString(), {
+        name: 'vynix',
+        version: readVersion(),
+        package: '@usevynix/mcp-server',
+        transports: ['stdio', 'streamable-http'],
+        auth: {
+          token_env: 'VYNIX_API_TOKEN',
+          credential_env: ['VYNIX_API_EMAIL', 'VYNIX_API_PASSWORD'],
+          api_url_env: 'VYNIX_API_URL',
+          default_api_url: 'https://www.vynix.in',
+        },
+      }),
+  );
+
+  server.registerResource(
+    'tool_catalog',
+    'vynix://reference/tools',
+    {
+      title: 'Tool catalog',
+      description: 'Quick reference for every tool, grouped by read and write behavior.',
+      mimeType: 'application/json',
+    },
+    async (uri) =>
+      jsonResource(uri.toString(), {
+        read_only: [
+          'list_projects',
+          'list_annotations',
+          'get_annotation',
+          'list_comments',
+          'get_annotation_analysis',
+          'get_annotation_screenshots',
+          'list_annotation_issues',
+          'list_project_issues',
+          'generate_prompt',
+          'get_metrics',
+          'list_members',
+          'get_activity',
+        ],
+        writes: [
+          'update_annotation_status',
+          'add_comment',
+          'diagnose_annotation',
+          'create_github_issue',
+          'create_share_link',
+        ],
+      }),
+  );
+
+  server.registerResource(
+    'prompt_catalog',
+    'vynix://reference/prompts',
+    {
+      title: 'Prompt catalog',
+      description: 'Prompt names and use cases for common Vynix workflows.',
+      mimeType: 'application/json',
+    },
+    async (uri) =>
+      jsonResource(uri.toString(), {
+        prompts: [
+          'fix_annotation',
+          'critical_issues',
+          'summarize_feedback',
+          'jira_ready_tasks',
+          'release_notes',
+          'group_by_severity',
+          'review_homepage',
+          'qa_report',
+          'accessibility_review',
+          'client_comments_summary',
+          'release_blockers',
+          'sprint_report',
+          'engineering_tasks',
+          'regression_summary',
+          'pm_briefing',
+        ],
+      }),
+  );
+
+  server.registerResource(
+    'skill_catalog',
+    'vynix://reference/skills',
+    {
+      title: 'Workflow skills',
+      description: 'Opinionated, complete workflows to run with Vynix data.',
+      mimeType: 'text/markdown',
+    },
+    async (uri) =>
+      textResource(
+        uri.toString(),
+        '# Vynix workflow skills\n\n' +
+          '- Review website: find high-impact defects using screenshots + diagnostics.\n' +
+          '- Find critical issues: list and rank open critical/high annotations.\n' +
+          '- Summarize feedback: create a stakeholder summary grouped by type.\n' +
+          '- Generate sprint report: summarize done vs open issues and blockers.\n' +
+          '- Generate engineering tasks: convert annotations into implementation tickets.\n' +
+          '- Accessibility review: isolate accessibility-tagged findings and action items.\n' +
+          '- UX review: cluster design/content feedback into usability themes.\n' +
+          '- Release readiness: identify blockers and unresolved regressions.\n' +
+          '- QA summary: summarize verification outcomes and untested areas.\n' +
+          '- Regression summary: compare recent activity with currently open defects.\n' +
+          '- Client approval summary: show what is complete and awaiting sign-off.\n' +
+          '- Product manager briefing: group work by severity, impact, and ownership.\n',
+      ),
+  );
+
+  server.registerResource(
+    'workflow_examples',
+    'vynix://examples/questions',
+    {
+      title: 'Conversation starters',
+      description: 'Natural-language starter questions that map to production workflows.',
+      mimeType: 'text/markdown',
+    },
+    async (uri) =>
+      textResource(
+        uri.toString(),
+        '- What feedback is still open for this project?\n' +
+          '- Which issues are blocking release this week?\n' +
+          '- Summarize critical bugs from the homepage.\n' +
+          '- Turn these open issues into Jira-ready tickets.\n' +
+          '- Give me a PM briefing I can paste into standup.\n',
+      ),
+  );
+
+  const projectSummaryTemplate = new ResourceTemplate('vynix://projects/{project_id}/summary', {
+    list: undefined,
+  });
+  server.registerResource(
+    'project_summary',
+    projectSummaryTemplate,
+    {
+      title: 'Project summary',
+      description: 'On-demand project snapshot with open issue counts and release blockers.',
+      mimeType: 'application/json',
+    },
+    async (uri, vars) => {
+      const projectId = templateVarAsString(vars.project_id, 'project_id');
+      const [openAnnotations, criticalAnnotations, issues] = await Promise.all([
+        client.listAnnotations(projectId, { status: 'open', limit: 200, offset: 0 }),
+        client.listAnnotations(projectId, { status: 'open', priority: 'critical', limit: 200, offset: 0 }),
+        client.listProjectIssues(projectId),
+      ]);
+
+      const summary = {
+        project_id: projectId,
+        open_annotations: openAnnotations.total,
+        critical_open_annotations: criticalAnnotations.total,
+        issue_summary: issues.summary,
+        release_blockers: openAnnotations.items
+          .filter((item) => item.priority === 'critical' || item.priority === 'high')
+          .slice(0, 20)
+          .map((item) => ({
+            id: item.id,
+            title: item.title,
+            priority: item.priority,
+            type: item.type,
+            page_url: item.page_url,
+          })),
+      };
+
+      return jsonResource(uri.toString(), sanitizeValue(summary));
+    },
+  );
+
+  const annotationBriefTemplate = new ResourceTemplate('vynix://annotations/{annotation_id}/brief', {
+    list: undefined,
+  });
+  server.registerResource(
+    'annotation_brief',
+    annotationBriefTemplate,
+    {
+      title: 'Annotation brief',
+      description: 'One-annotation summary with diagnosis state and latest comments.',
+      mimeType: 'application/json',
+    },
+    async (uri, vars) => {
+      const annotationId = templateVarAsString(vars.annotation_id, 'annotation_id');
+      const [annotation, analysis, comments] = await Promise.all([
+        client.getAnnotation(annotationId),
+        client.getAnalysis(annotationId),
+        client.listComments(annotationId),
+      ]);
+
+      const brief = {
+        annotation: toPublicAnnotation(annotation as unknown as Record<string, unknown>),
+        diagnosis_enabled: analysis.diagnosis_enabled,
+        has_analysis: Boolean(analysis.analysis),
+        latest_comment: comments[0]
+          ? toPublicComment(comments[0] as unknown as Record<string, unknown>)
+          : null,
+        comment_count: comments.length,
+      };
+
+      return jsonResource(uri.toString(), brief as Record<string, unknown>);
     },
   );
 
@@ -885,6 +1116,349 @@ function createServer(client: VynixClient): McpServer {
               `5. Call update_annotation_status to "in_progress" while working and "completed" when done.\n` +
               `6. Call add_comment to record what you changed.\n` +
               `Be precise and only touch the relevant component.`,
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'critical_issues',
+    {
+      title: 'Find critical issues',
+      description: 'Identify and rank critical or high-priority open issues for a project.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Find critical issues for project ${args.project_id}.\n` +
+              '1. Call list_annotations with status=open and priority=critical.\n' +
+              '2. Call list_annotations with status=open and priority=high.\n' +
+              '3. Rank results by user impact, reproduction clarity, and release risk.\n' +
+              '4. Return a concise action plan with immediate next steps.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'summarize_feedback',
+    {
+      title: 'Summarize feedback',
+      description: 'Generate a stakeholder-friendly summary of open feedback for a project.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Summarize feedback for project ${args.project_id}.\n` +
+              '1. Call list_annotations with status=open (paginate when needed).\n' +
+              '2. Group findings by type and priority.\n' +
+              '3. Highlight recurring themes and impacted pages.\n' +
+              '4. Return an executive summary plus a technical appendix.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'jira_ready_tasks',
+    {
+      title: 'Create Jira-ready tasks',
+      description: 'Convert selected open annotations into engineering-ready implementation tasks.',
+      argsSchema: { project_id: z.string(), limit: z.number().int().min(1).max(50).optional() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Create Jira-ready tasks for project ${args.project_id} (limit ${args.limit ?? 10}).\n` +
+              '1. Call list_annotations with status=open and limit from args.\n' +
+              '2. For each item, call get_annotation and get_annotation_analysis when available.\n' +
+              '3. Produce tasks with title, problem statement, acceptance criteria, and test notes.\n' +
+              '4. Keep scope minimal and implementation-focused.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'release_notes',
+    {
+      title: 'Prepare release notes',
+      description: 'Build release notes from completed annotations and linked tracker issues.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Prepare release notes for project ${args.project_id}.\n` +
+              '1. Call list_annotations with status=completed.\n' +
+              '2. Call list_project_issues to map issue links and states.\n' +
+              '3. Summarize changes by category: bug fixes, UX, accessibility, performance.\n' +
+              '4. Include residual known issues still open.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'group_by_severity',
+    {
+      title: 'Group issues by severity',
+      description: 'Create a severity matrix from open annotations in a project.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Group open annotations by severity for project ${args.project_id}.\n` +
+              '1. Call list_annotations with status=open.\n' +
+              '2. Group by priority and by type.\n' +
+              '3. Provide counts, top examples, and recommended response SLA per group.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'review_homepage',
+    {
+      title: 'Review homepage feedback',
+      description: 'Analyze homepage-related annotations and recommend a fix sequence.',
+      argsSchema: { project_id: z.string(), homepage_url: z.string().optional() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Review homepage feedback for project ${args.project_id}.\n` +
+              `Homepage URL hint: ${args.homepage_url ?? 'not provided'}\n` +
+              '1. Call list_annotations with status=open.\n' +
+              '2. Keep only items where page_url matches the homepage hint or root page.\n' +
+              '3. Inspect screenshots and diagnostics for top-impact items.\n' +
+              '4. Return prioritized fixes with expected UX impact.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'qa_report',
+    {
+      title: 'Generate QA report',
+      description: 'Generate a QA report from open, review, and completed annotations.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Generate a QA report for project ${args.project_id}.\n` +
+              '1. Call list_annotations for status=open, review, and completed.\n' +
+              '2. Summarize pass/fail trends and unresolved risk areas.\n' +
+              '3. Include regression hotspots and confidence for release.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'accessibility_review',
+    {
+      title: 'Accessibility review summary',
+      description: 'Summarize accessibility findings and next actions for compliance readiness.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Run an accessibility-focused review for project ${args.project_id}.\n` +
+              '1. Call list_annotations with type=accessibility for all statuses.\n' +
+              '2. Highlight open defects by severity and affected UI areas.\n' +
+              '3. Propose fixes aligned to WCAG language where possible.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'client_comments_summary',
+    {
+      title: 'Summarize client comments',
+      description: 'Summarize annotation comment threads into decisions and unresolved questions.',
+      argsSchema: { annotation_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Summarize client comments for annotation ${args.annotation_id}.\n` +
+              '1. Call get_annotation and list_comments.\n' +
+              '2. Extract explicit requests, decisions, and unresolved questions.\n' +
+              '3. Return a concise decision log and next action list.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'release_blockers',
+    {
+      title: 'List release blockers',
+      description: 'Identify unresolved issues likely to block release for a project.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `List release blockers for project ${args.project_id}.\n` +
+              '1. Call list_annotations with status=open and status=review.\n' +
+              '2. Prioritize critical/high items and unresolved tracker issues.\n' +
+              '3. Return blocker, impact, owner suggestion, and exit criteria for each.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'sprint_report',
+    {
+      title: 'Generate sprint report',
+      description: 'Create a sprint status summary using annotation and issue activity.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Generate a sprint report for project ${args.project_id}.\n` +
+              '1. Call get_activity, list_project_issues, and list_annotations.\n' +
+              '2. Summarize completed work, carry-over, and newly discovered issues.\n' +
+              '3. Provide a short narrative for engineering and product stakeholders.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'engineering_tasks',
+    {
+      title: 'Generate engineering tasks',
+      description: 'Generate implementation tasks with acceptance criteria and risk notes.',
+      argsSchema: { project_id: z.string(), priority: z.enum(PRIORITY_VALUES).optional() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Generate engineering tasks for project ${args.project_id}.\n` +
+              `Priority filter: ${args.priority ?? 'all'}\n` +
+              '1. Call list_annotations with status=open and optional priority.\n' +
+              '2. Convert each annotation into an actionable task card.\n' +
+              '3. Include implementation hints from AI analysis when present.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'regression_summary',
+    {
+      title: 'Regression summary',
+      description: 'Summarize likely regressions and recently re-opened defects.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Generate a regression summary for project ${args.project_id}.\n` +
+              '1. Call get_activity and list_annotations with status=open/review.\n' +
+              '2. Identify repeated issue themes or re-open patterns.\n' +
+              '3. Recommend targeted regression tests.',
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'pm_briefing',
+    {
+      title: 'Product manager briefing',
+      description: 'Create a PM-ready briefing on risk, progress, and decision points.',
+      argsSchema: { project_id: z.string() },
+    },
+    (args) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              `Prepare a product manager briefing for project ${args.project_id}.\n` +
+              '1. Call get_metrics, list_annotations (open/review/completed), and list_project_issues.\n' +
+              '2. Summarize health, blockers, trend direction, and top decisions needed.\n' +
+              '3. Keep output concise and stakeholder-friendly.',
           },
         },
       ],

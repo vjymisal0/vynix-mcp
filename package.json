@@ -8,13 +8,19 @@
   "keywords": [
     "mcp",
     "model-context-protocol",
+    "mcp-server",
+    "agent-tools",
+    "developer-tools",
     "vynix",
     "annotations",
     "feedback",
+    "qa",
+    "accessibility",
     "ai",
     "coding-agent",
     "cursor",
-    "claude"
+    "claude",
+    "copilot"
   ],
   "homepage": "https://www.vynix.in/mcp",
   "repository": {
@@ -34,18 +40,26 @@
     "vynix-mcp": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "server.json",
+    "glama.json",
+    "docs"
   ],
   "scripts": {
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "oauth:e2e": "node scripts/oauth-e2e.mjs",
     "test": "node scripts/smoke.mjs",
+    "validate:examples": "node scripts/validate-examples.mjs",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run validate:examples"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

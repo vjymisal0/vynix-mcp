@@ -1,19 +1,23 @@
-# Example
+# Examples
 
-A minimal example for Vynix MCP Server.
+## Configuration examples
 
-Get your project key from [https://vynix.in](https://vynix.in), then:
+- [configs/mcp.json](configs/mcp.json)
+- [configs/claude-desktop.json](configs/claude-desktop.json)
+- [configs/cursor.json](configs/cursor.json)
+- [configs/vscode-mcp.json](configs/vscode-mcp.json)
+- [configs/windsurf.json](configs/windsurf.json)
 
-```json
-{
- "mcpServers": {
- "vynix": {
- "command": "npx",
- "args": ["-y", "@vynix/mcp"],
- "env": { "VYNIX_API_TOKEN": "YOUR_TOKEN" }
- }
- }
-}
-```
+All config examples use `@usevynix/mcp-server` and are validated by `npm run validate:examples`.
 
-See the [README](../README.md) for full setup, and the [Vynix docs](https://vynix.in/docs) for the API reference.
+## Workflow examples
+
+- [workflows/open-feedback.md](workflows/open-feedback.md)
+- [workflows/release-blockers.md](workflows/release-blockers.md)
+- [workflows/sprint-planning.md](workflows/sprint-planning.md)
+- [workflows/qa-daily-summary.md](workflows/qa-daily-summary.md)
+- [workflows/review-homepage.md](workflows/review-homepage.md)
+
+## Prompt library
+
+- [prompts.md](prompts.md) includes 100+ realistic prompts grouped by function.

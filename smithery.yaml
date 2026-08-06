@@ -1,0 +1,16 @@
+name: in.vynix/vynix-mcp
+description: MCP server that connects AI agents to Vynix annotations, diagnostics, screenshots, and issue workflows.
+version: 0.1.4
+runtime: node
+entrypoint:
+  command: npx
+  args:
+    - -y
+    - "@usevynix/mcp-server"
+env:
+  - name: VYNIX_API_URL
+    required: false
+    default: https://www.vynix.in
+  - name: VYNIX_API_TOKEN
+    required: true
+    secret: true

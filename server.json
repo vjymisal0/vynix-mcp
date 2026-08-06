@@ -31,6 +31,23 @@
           "description": "Personal access token generated at https://www.vynix.in/mcp.",
           "isRequired": false,
           "isSecret": true
+        },
+        {
+          "name": "VYNIX_API_EMAIL",
+          "description": "Optional login email for token refresh mode when token is not set.",
+          "isRequired": false
+        },
+        {
+          "name": "VYNIX_API_PASSWORD",
+          "description": "Optional login password for token refresh mode when token is not set.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "VYNIX_MCP_MODE",
+          "description": "Transport mode: stdio (default) or http.",
+          "isRequired": false,
+          "default": "stdio"
         }
       ]
     }

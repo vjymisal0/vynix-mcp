@@ -1,54 +1,49 @@
-# Vynix MCP server
+# Vynix MCP Server
 
-A [Model Context Protocol](https://modelcontextprotocol.io) server that gives AI coding
-agents (Claude, Copilot, Cursor and more) direct access to your [Vynix](https://vynix.in) annotations, so an
-agent can read the feedback, see the captured context and screenshots, run an AI
-diagnosis, generate a fix prompt, open a GitHub issue, update status, and comment, all
-without leaving the editor.
+[![npm version](https://img.shields.io/npm/v/@usevynix/mcp-server)](https://www.npmjs.com/package/@usevynix/mcp-server)
+[![npm downloads](https://img.shields.io/npm/dm/@usevynix/mcp-server)](https://www.npmjs.com/package/@usevynix/mcp-server)
+[![license](https://img.shields.io/github/license/UseVynix/vynix-mcp)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/UseVynix/vynix-mcp/ci.yml?branch=main)](https://github.com/UseVynix/vynix-mcp/actions)
 
-Every tool carries MCP **annotations** (read-only / idempotent / open-world hints) so a
-client can auto-approve safe reads and confirm before writes, AI spend, or GitHub calls.
+Model Context Protocol server for Vynix. It gives coding agents direct access to visual feedback, bug reports, screenshots, diagnostics, comments, and issue workflows so agents can reason from real context instead of guessing.
 
-## Tools
+## Why Vynix
 
-Read-only:
+- Feedback with evidence: page metadata, target element, screenshot, console/network context.
+- End-to-end execution: inspect feedback, diagnose, generate coding prompts, create GitHub issues, update status, comment.
+- Agent-safe hints: read-only/idempotent/open-world annotations for better approval behavior in MCP clients.
+- Registry-ready metadata for modern MCP directories.
 
-| Tool | Description |
-| --- | --- |
-| `list_projects` | List the projects you own. |
-| `list_annotations` | List a project's annotations, filtered by status / type / priority. |
-| `get_annotation` | Fetch one annotation with full page / element / DOM / diagnostics context. |
-| `list_comments` | Read an annotation's discussion thread. |
-| `get_annotation_analysis` | Read the latest AI diagnosis (root causes, fix, likely files). |
-| `get_annotation_screenshots` | Return attached screenshots as viewable images. |
-| `list_annotation_issues` | List the GitHub issues opened from an annotation (optionally live). |
-| `list_project_issues` | List every tracker issue across a project, with a summary. |
-| `generate_prompt` | Produce a ready-to-paste prompt (`claude`/`copilot`/`cursor`/`gemini`/`codex`/`generic`). |
-| `get_metrics` | KPI counts, status breakdown, time series, recent activity. |
-| `list_members` | A project's team members. |
-| `get_activity` | A project's recent activity feed. |
+## Screenshots
 
-Writes (a client should confirm these):
+- Product screenshot placeholder: docs/assets/screenshot-dashboard.png
+- Annotation workflow GIF placeholder: docs/assets/workflow-fix-annotation.gif
 
-| Tool | Description |
-| --- | --- |
-| `update_annotation_status` | Move an annotation to `in_progress`, `completed`, etc. |
-| `add_comment` | Post a comment to an annotation's thread (notifies the team). |
-| `diagnose_annotation` | Run the AI Diagnosis Engine (uses an AI provider; stores the result). |
-| `create_github_issue` | File a GitHub issue from an annotation. |
-| `create_share_link` | Mint a read-only public review link for a project. |
+## Architecture
 
-## Prompts
+```mermaid
+flowchart LR
+  A[MCP Client\nClaude/Cursor/Copilot/VS Code] -->|stdio or streamable-http| B[Vynix MCP Server]
+  B --> C[Vynix API]
+  B --> D[GitHub API via Vynix backend]
+  C --> E[Projects]
+  C --> F[Annotations]
+  C --> G[Screenshots and diagnostics]
+```
 
-| Prompt | Description |
-| --- | --- |
-| `fix_annotation` | A guided, step-by-step workflow that walks the agent from an annotation through context → screenshots → AI diagnosis → fix → status + comment. |
+## Features
 
-## Install
+- 17 production tools for read and write workflows.
+- Resource catalog for server metadata, tool/prompt/skill references, and contextual summaries.
+- Workflow prompts for QA, release readiness, PM briefings, and engineering planning.
+- Dual transport support: `stdio` and Streamable HTTP.
+- Auth via API token or email/password refresh flow.
 
-The server is published on npm. Most MCP clients (Cursor, VS Code, Claude Desktop and more)
-just need a command and a token, and `npx` fetches and runs it automatically with no global
-install. Requires Node.js 18+:
+## Installation
+
+Node.js 18+ is required.
+
+### NPX (recommended)
 
 ```json
 {
@@ -65,44 +60,46 @@ install. Requires Node.js 18+:
 }
 ```
 
-Generate your token from the Vynix dashboard at <https://www.vynix.in/mcp>. Config file
-locations: Cursor `~/.cursor/mcp.json`, VS Code `.vscode/mcp.json`, Claude Desktop
-`claude_desktop_config.json`. VS Code uses a top-level `"servers"` key instead of
-`"mcpServers"`; everything else is identical.
+### npm global install
 
-## Configure
+```bash
+npm install -g @usevynix/mcp-server
+vynix-mcp
+```
 
-Authenticate with either a token (recommended) or email and password:
+### Docker
 
-- `VYNIX_API_URL` - your Vynix API base URL (default `https://www.vynix.in`).
-- `VYNIX_API_TOKEN` - a token generated at <https://www.vynix.in/mcp>, **or**
-- `VYNIX_API_EMAIL` + `VYNIX_API_PASSWORD` - the server logs in on demand and refreshes
-  the token automatically when it expires.
+```bash
+docker run --rm -i \
+  -e VYNIX_API_URL=https://www.vynix.in \
+  -e VYNIX_API_TOKEN=PASTE_YOUR_TOKEN_HERE \
+  ghcr.io/usevynix/vynix-mcp:latest
+```
 
-## Build from source
-
-For contributors who want to run the server from a local checkout:
+### Local development
 
 ```bash
 git clone https://github.com/UseVynix/vynix-mcp.git
 cd vynix-mcp
 npm install
 npm run build
-npm start          # runs dist/index.js over stdio
-npm run dev        # watch mode with tsx
-npm test           # smoke test: launches the server and verifies the tool + prompt surface
+npm run check
+node dist/index.js
 ```
 
-Then point your client at the built file instead of `npx`:
+## Client Configuration
+
+### Claude Desktop
+
+Use `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "vynix": {
-      "command": "node",
-      "args": ["/absolute/path/to/vynix-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server"],
       "env": {
-        "VYNIX_API_URL": "https://www.vynix.in",
         "VYNIX_API_TOKEN": "PASTE_YOUR_TOKEN_HERE"
       }
     }
@@ -113,3 +110,136 @@ Then point your client at the built file instead of `npx`:
 Diagnostics are written to stderr; stdout is reserved for the protocol stream.
 
 [![MCP Badge](https://lobehub.com/badge/mcp/vynix-in-vynix-mcp)](https://lobehub.com/mcp/vynix-in-vynix-mcp)
+
+### Cursor
+
+Use `~/.cursor/mcp.json`.
+
+```json
+{
+  "mcpServers": {
+    "vynix": {
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server"],
+      "env": {
+        "VYNIX_API_TOKEN": "PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+### VS Code
+
+Use `.vscode/mcp.json` with top-level `servers`:
+
+```json
+{
+  "servers": {
+    "vynix": {
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server"],
+      "env": {
+        "VYNIX_API_TOKEN": "PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+### Windsurf
+
+Use your Windsurf MCP config file with this server block:
+
+```json
+{
+  "mcpServers": {
+    "vynix": {
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server"],
+      "env": {
+        "VYNIX_API_TOKEN": "PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+### ChatGPT connectors
+
+For hosted mode, use the Streamable HTTP endpoint:
+
+- Base URL: `https://mcp.vynix.in/mcp`
+- OAuth discovery: `/.well-known/oauth-authorization-server`
+
+### Generic mcp.json
+
+See [examples/configs/mcp.json](examples/configs/mcp.json).
+
+## Authentication
+
+Environment variables:
+
+- `VYNIX_API_URL` (optional, default: `https://www.vynix.in`)
+- `VYNIX_API_TOKEN` (recommended)
+- `VYNIX_API_EMAIL` and `VYNIX_API_PASSWORD` (fallback login mode)
+- `VYNIX_MCP_MODE` (`stdio` or `http`)
+- `VYNIX_MCP_HOST`, `VYNIX_MCP_PORT`, `VYNIX_MCP_PATH` (HTTP mode)
+
+Generate a token from: <https://www.vynix.in/mcp>
+
+## Tools, Prompts, and Resources
+
+- Tool reference: [docs/tools.md](docs/tools.md)
+- Prompt reference: [docs/prompts.md](docs/prompts.md)
+- Resource reference: [docs/resources.md](docs/resources.md)
+- Skill/workflow reference: [docs/skills.md](docs/skills.md)
+- Deployment guide: [docs/deployment.md](docs/deployment.md)
+
+## Examples
+
+- Conversation workflows: [examples/workflows](examples/workflows)
+- Prompt library (100+ prompts): [examples/prompts.md](examples/prompts.md)
+
+## Troubleshooting
+
+- `Not configured` error: set `VYNIX_API_TOKEN` or both `VYNIX_API_EMAIL` and `VYNIX_API_PASSWORD`.
+- `401` errors: regenerate token and verify API URL.
+- No tools listed: confirm the MCP config key (`mcpServers` vs `servers`) for your client.
+- Hosted mode not reachable: verify `VYNIX_MCP_MODE=http` and check `/health`.
+
+## FAQ
+
+### Does this send data to third-party AI providers?
+
+Only `diagnose_annotation` can invoke external AI providers through your Vynix workspace configuration.
+
+### Is this read-only?
+
+No. It includes read tools and write tools. MCP annotations identify mutating/open-world calls so clients can request confirmation.
+
+### Can I self-host?
+
+Yes. Run in stdio mode locally or HTTP mode behind your own infrastructure.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). For local validation run:
+
+```bash
+npm run check
+```
+
+## Security
+
+- Never commit API tokens.
+- Prefer short-lived tokens where possible.
+- See [SECURITY.md](SECURITY.md) (create one if your org requires a disclosure policy).
+
+## License
+
+[MIT](LICENSE)
+
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md)

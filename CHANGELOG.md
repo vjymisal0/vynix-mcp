@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Added MCP resources for server metadata, tool/prompt catalogs, workflow starters, project summaries, and annotation briefs.
+- Expanded prompt catalog with workflow-oriented prompts for QA, release, product, accessibility, and engineering planning.
+- Rewrote README with full install matrix (NPX, npm, Docker, Claude Desktop, Cursor, VS Code, Windsurf, ChatGPT).
+- Added comprehensive docs: tool reference, prompt reference, resource reference, skills, registry compatibility, and audit report.
+- Added workflow and config examples, plus a prompt library with 100+ production prompts.
+- Added CI workflows and example config validation script.
+- Improved `VYNIX_API_URL` validation and credential error clarity.
+
 ## 0.1.4
 
 - Registered in the official MCP Registry as `in.vynix/vynix-mcp` (DNS-verified).

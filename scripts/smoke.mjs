@@ -88,6 +88,12 @@ assert(
 // Prompt surface.
 const { prompts } = await client.listPrompts();
 assert('fix_annotation prompt present', prompts.some((p) => p.name === 'fix_annotation'));
+assert('critical_issues prompt present', prompts.some((p) => p.name === 'critical_issues'));
+assert('pm_briefing prompt present', prompts.some((p) => p.name === 'pm_briefing'));
+
+const { resources } = await client.listResources();
+assert('server metadata resource present', resources.some((r) => r.uri === 'vynix://meta/server'));
+assert('tool catalog resource present', resources.some((r) => r.uri === 'vynix://reference/tools'));
 
 await client.close();
 

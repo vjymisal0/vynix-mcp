@@ -5,14 +5,34 @@ export interface VynixConfig {
   password?: string;
 }
 
+function normalizeApiUrl(rawUrl: string): string {
+  const trimmed = rawUrl.trim();
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new Error(
+      `Invalid VYNIX_API_URL: "${rawUrl}". Expected a valid absolute URL such as https://www.vynix.in.`,
+    );
+  }
+
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(
+      `Invalid VYNIX_API_URL protocol "${parsed.protocol}". Use http:// or https://.`,
+    );
+  }
+
+  return parsed.toString().replace(/\/+$/, '');
+}
+
 /** Reads connection settings from the environment. */
 export function loadConfig(): VynixConfig {
-  const apiUrl = (process.env.VYNIX_API_URL || 'https://www.vynix.in').replace(/\/+$/, '');
+  const apiUrl = normalizeApiUrl(process.env.VYNIX_API_URL || 'https://www.vynix.in');
 
   return {
     apiUrl,
-    token: process.env.VYNIX_API_TOKEN || undefined,
-    email: process.env.VYNIX_API_EMAIL || undefined,
+    token: process.env.VYNIX_API_TOKEN?.trim() || undefined,
+    email: process.env.VYNIX_API_EMAIL?.trim() || undefined,
     password: process.env.VYNIX_API_PASSWORD || undefined,
   };
 }
@@ -34,6 +54,15 @@ export function assertConfigured(config: VynixConfig): void {
   if (config.email && config.password) {
     return;
   }
+
+  if (config.email && !config.password) {
+    throw new Error('VYNIX_API_EMAIL is set but VYNIX_API_PASSWORD is missing. Set both values together.');
+  }
+
+  if (!config.email && config.password) {
+    throw new Error('VYNIX_API_PASSWORD is set but VYNIX_API_EMAIL is missing. Set both values together.');
+  }
+
   throw new Error(
     'Vynix MCP server is not configured. Set VYNIX_API_TOKEN, or both VYNIX_API_EMAIL and ' +
       'VYNIX_API_PASSWORD, in the server environment.',
