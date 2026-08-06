@@ -111,3 +111,5 @@ Then point your client at the built file instead of `npx`:
 ```
 
 Diagnostics are written to stderr; stdout is reserved for the protocol stream.
+
+[![MCP Badge](https://lobehub.com/badge/mcp/vynix-in-vynix-mcp)](https://lobehub.com/mcp/vynix-in-vynix-mcp)
