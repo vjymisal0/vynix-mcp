@@ -5,8 +5,11 @@
 [![license](https://img.shields.io/github/license/UseVynix/vynix-mcp)](LICENSE)
 [![ci](https://img.shields.io/github/actions/workflow/status/UseVynix/vynix-mcp/ci.yml?branch=main)](https://github.com/UseVynix/vynix-mcp/actions)
 [![vynix-mcp MCP server](https://glama.ai/mcp/servers/UseVynix/vynix-mcp/badges/score.svg)](https://glama.ai/mcp/servers/UseVynix/vynix-mcp)
+[![smithery badge](https://smithery.ai/badge/team-j5ir/vynix)](https://smithery.ai/servers/team-j5ir/vynix)
 
 Model Context Protocol server for Vynix. It gives coding agents direct access to visual feedback, bug reports, screenshots, diagnostics, comments, and issue workflows so agents can reason from real context instead of guessing.
+
+Smithery listing: https://smithery.ai/servers/team-j5ir/vynix
 
 ## Why Vynix
 
