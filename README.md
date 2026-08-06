@@ -4,6 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/@usevynix/mcp-server)](https://www.npmjs.com/package/@usevynix/mcp-server)
 [![license](https://img.shields.io/github/license/UseVynix/vynix-mcp)](LICENSE)
 [![ci](https://img.shields.io/github/actions/workflow/status/UseVynix/vynix-mcp/ci.yml?branch=main)](https://github.com/UseVynix/vynix-mcp/actions)
+[![vynix-mcp MCP server](https://glama.ai/mcp/servers/UseVynix/vynix-mcp/badges/score.svg)](https://glama.ai/mcp/servers/UseVynix/vynix-mcp)
 
 Model Context Protocol server for Vynix. It gives coding agents direct access to visual feedback, bug reports, screenshots, diagnostics, comments, and issue workflows so agents can reason from real context instead of guessing.
 
