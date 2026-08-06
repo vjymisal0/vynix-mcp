@@ -166,6 +166,24 @@ Use your Windsurf MCP config file with this server block:
 }
 ```
 
+### Gemini CLI
+
+Use `~/.gemini/settings.json` (or a project-level `.gemini/settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "vynix": {
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server"],
+      "env": {
+        "VYNIX_API_TOKEN": "PASTE_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
 ### ChatGPT connectors
 
 For hosted mode, use the Streamable HTTP endpoint:
@@ -196,6 +214,7 @@ Generate a token from: <https://www.vynix.in/mcp>
 - Resource reference: [docs/resources.md](docs/resources.md)
 - Skill/workflow reference: [docs/skills.md](docs/skills.md)
 - Deployment guide: [docs/deployment.md](docs/deployment.md)
+- Troubleshooting guide: [docs/troubleshooting.md](docs/troubleshooting.md)
 - Agent discovery guide: [docs/agent-discovery.md](docs/agent-discovery.md)
 - LLM index file: [llms.txt](llms.txt)
 - Directory listing tracker: [docs/listings-status.md](docs/listings-status.md)
@@ -211,6 +230,7 @@ Generate a token from: <https://www.vynix.in/mcp>
 - `401` errors: regenerate token and verify API URL.
 - No tools listed: confirm the MCP config key (`mcpServers` vs `servers`) for your client.
 - Hosted mode not reachable: verify `VYNIX_MCP_MODE=http` and check `/health`.
+- Client-specific setup issues (Claude Desktop, Gemini CLI): see [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## FAQ
 
