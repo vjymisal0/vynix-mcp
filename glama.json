@@ -1,17 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "name": "in.vynix/vynix-mcp",
-  "displayName": "Vynix MCP Server",
-  "description": "Connect AI agents to Vynix annotations, screenshots, comments, diagnostics, and issue workflows.",
-  "repository": "https://github.com/UseVynix/vynix-mcp",
-  "homepage": "https://www.vynix.in/mcp",
-  "license": "MIT",
   "maintainers": [
-    "UseVynix"
-  ],
-  "capabilities": {
-    "tools": true,
-    "prompts": true,
-    "resources": true
-  }
+    "UseVynix",
+    "Surajsharma07"
+  ]
 }
