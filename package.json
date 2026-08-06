@@ -55,7 +55,7 @@
     "dev": "tsx watch src/index.ts",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "oauth:e2e": "node scripts/oauth-e2e.mjs",
-    "test": "node scripts/smoke.mjs",
+    "test": "npm run build && node scripts/smoke.mjs",
     "validate:examples": "node scripts/validate-examples.mjs",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.ts\"",
