@@ -70,7 +70,7 @@ Or install globally (`npm install -g @usevynix/mcp-server`) and point
 **Cause:** This is the server's own startup check (`assertConfigured` in
 `src/config.ts`) — no credentials were found in the `env` block of the
 server's config entry. Note this only runs in stdio mode; it's skipped
-when `VYNIX_MCP_MODE=http`.
+when `VYNIX_MCP_MODE=http` or `VYNIX_MCP_MODE=streamable-http`.
 
 **Fix:** Add `VYNIX_API_TOKEN` (generate one at
 <https://www.vynix.in/mcp>) to the `env` object for the `vynix` server
@@ -78,7 +78,7 @@ entry, as shown in the config examples above. Setting it in your shell's
 profile isn't enough — Claude Desktop doesn't inherit your interactive
 shell environment, so it has to be in the config file's `env` block.
 
-## Gemini
+## Gemini CLI
 
 Gemini CLI reads MCP server definitions from `~/.gemini/settings.json`
 (global) or `.gemini/settings.json` in a project directory (project-level,
