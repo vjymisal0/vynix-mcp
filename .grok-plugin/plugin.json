@@ -1,0 +1,7 @@
+{
+  "name": "vynix",
+  "description": "Give AI coding agents access to Vynix visual website feedback, bug reports, screenshots, and AI diagnosis.",
+  "version": "1.0.0",
+  "homepage": "https://www.vynix.in/mcp",
+  "license": "MIT"
+}
