@@ -1,5 +1,5 @@
 name: in.vynix/vynix-mcp
-description: MCP server that connects AI agents to Vynix annotations, diagnostics, screenshots, and issue workflows.
+description: Visual website feedback and browser annotation for AI coding agents. Capture annotated screenshots, element inspection, DOM context, console logs, and network requests, then turn feedback into actionable issues. Docs: https://www.vynix.in/docs/mcp/ Annotation: https://www.vynix.in/docs/annotation/ Website: https://www.vynix.in/ Chrome Extension: https://chromewebstore.google.com/detail/vynix-visual-bug-reports/hgddehkmjibbhkhapihlpocoefdjeibf GitHub: https://github.com/UseVynix/vynix-mcp
 version: 0.1.4
 runtime: node
 entrypoint:

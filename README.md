@@ -15,11 +15,6 @@ Model Context Protocol server for Vynix. It gives coding agents direct access to
 - Agent-safe hints: read-only/idempotent/open-world annotations for better approval behavior in MCP clients.
 - Registry-ready metadata for modern MCP directories.
 
-## Screenshots
-
-- Product screenshot placeholder: docs/assets/screenshot-dashboard.png
-- Annotation workflow GIF placeholder: docs/assets/workflow-fix-annotation.gif
-
 ## Architecture
 
 ```mermaid
@@ -109,8 +104,6 @@ Use `claude_desktop_config.json`:
 ```
 
 Diagnostics are written to stderr; stdout is reserved for the protocol stream.
-
-[![MCP Badge](https://lobehub.com/badge/mcp/vynix-in-vynix-mcp)](https://lobehub.com/mcp/vynix-in-vynix-mcp)
 
 ### Cursor
 

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "vynix": {
+      "command": "npx",
+      "args": ["-y", "@usevynix/mcp-server@1.0.0"],
+      "env": {
+        "VYNIX_API_TOKEN": "${VYNIX_API_TOKEN}"
+      }
+    }
+  }
+}
